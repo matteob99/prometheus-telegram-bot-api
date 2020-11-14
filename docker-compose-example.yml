@@ -1,0 +1,34 @@
+version: '3.4'
+x-default: &default
+  restart: on-failure
+  env_file:
+    - config.env
+
+services:
+  python-with-build:
+    <<: *default
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+    - 8000:8000
+    depends_on:
+      - telegram-bot-api
+
+  python-with-image:
+    <<: *default
+    image: ghcr.io/matteob99/prometheus-telegram-bot-api
+    ports:
+    - 8000:8000
+    depends_on:
+      - telegram-bot-api
+
+
+  telegram-bot-api:
+    <<: *default
+    image: ghcr.io/tdlight-team/tdlightbotapi
+    entrypoint: "telegram-bot-api --http-port 8081 --dir=/var/lib/telegram-bot-api --temp-dir=/tmp/telegram-bot-api --log=/var/log/telegram-bot-api/telegram-bot-api.log  --http-stat-port=8082 --verbosity=5 --local --insecure --username=telegram-bot-api --groupname=telegram-bot-api"
+    ports:
+    - 8081:8081
+
+
